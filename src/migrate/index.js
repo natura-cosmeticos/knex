@@ -150,8 +150,8 @@ export default class Migrator {
       .then((val) => this._writeNewMigration(name, val));
   }
 
-  printAll(direction) {
-    global.printAll = true;
+  print(direction) {
+    global.print = true;
 
     return migrationListResolver
       .listAll(this._absoluteConfigDir(), this.config.loadExtensions)
