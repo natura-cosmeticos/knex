@@ -150,6 +150,39 @@ export default class Migrator {
       .then((val) => this._writeNewMigration(name, val));
   }
 
+  printAll(direction) {
+    global.printAll = true;
+
+    return migrationListResolver
+      .listAll(this._absoluteConfigDir(), this.config.loadExtensions)
+      .then((migrationFiles) => {
+        let current = Promise.bind({ failed: false, failedOn: 0 });
+
+        each(migrationFiles, (migrationFile) => {
+          const directory = this._absoluteConfigDir();
+          const migration = require(directory + '/' + migrationFile);
+
+          if (direction === 'up' || direction === 'all') {
+            current = current.then(() => {
+              console.log(`\n${migrationFile}`);
+              console.log('======== UP ==========');
+              return migration['up'](this.knex, Promise);
+            });
+          }
+
+          if (direction === 'down' || direction === 'all') {
+            current = current.then(() => {
+              console.log(`\n${migrationFile}`);
+              console.log('======== DOWN ==========');
+              return migration['down'](this.knex, Promise);
+            });
+          }
+        });
+
+        return current.thenReturn();
+      });
+  }
+
   // Ensures a folder for the migrations exist, dependent on the migration
   // config settings.
   _ensureFolder() {
@@ -203,15 +236,14 @@ export default class Migrator {
       this._getLock(trx)
         // When there is a wrapping transaction, some migrations
         // could have been done while waiting for the lock:
-        .then(
-          () =>
-            trx
-              ? migrationListResolver.listCompleted(
-                  this.config.tableName,
-                  this.config.schemaName,
-                  trx
-                )
-              : []
+        .then(() =>
+          trx
+            ? migrationListResolver.listCompleted(
+                this.config.tableName,
+                this.config.schemaName,
+                trx
+              )
+            : []
         )
         .then((completed) => (migrations = difference(migrations, completed)))
         .then(() =>
