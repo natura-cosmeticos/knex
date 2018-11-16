@@ -25,6 +25,15 @@ function success(text) {
   process.exit(0);
 }
 
+function checkMigrationDirection(direction) {
+  if (!direction) return;
+
+  if (direction !== 'up' && direction !== 'down') {
+    console.log(chalk.red('Direction is invalid'));
+    exit('Try to pass: up or down.');
+  }
+}
+
 function checkLocalModule(env) {
   if (!env.modulePath) {
     console.log(
@@ -198,8 +207,12 @@ function invoke(env) {
   commander
     .command('migrate:print')
     .description('Print all migrations in directory')
-    .option('--direction', 'Specify migration direction to print. It can be "up" or "down"')
+    .option(
+      '--direction',
+      'Specify migration direction to print. It can be "up" or "down"'
+    )
     .action(function() {
+      checkMigrationDirection(argv.direction);
       const direction = argv.direction || 'all';
 
       pending = initKnex(env)
