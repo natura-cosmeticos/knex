@@ -161,7 +161,7 @@ export default class Migrator {
       .transacting(trx)
       .forUpdate()
       .select('*')
-      .then((data) => data[0].is_locked);
+      .then((data = [{}]) => data[0].is_locked);
   }
 
   _lockMigrations(trx) {
@@ -312,7 +312,7 @@ export default class Migrator {
     return trx
       .from(getTableName(this.config.tableName, this.config.schemaName))
       .max('batch as max_batch')
-      .then((obj) => obj[0].max_batch || 0);
+      .then((obj = [{}]) => obj[0].max_batch || 0);
   }
 
   // If transaction config for a single migration is defined, use that.

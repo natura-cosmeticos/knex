@@ -25,6 +25,8 @@ export function ensureTable(tableName, schemaName, trxOrKnex) {
       return getTable(trxOrKnex, lockTable, schemaName).select('*');
     })
     .then((data) => {
+      if (!data) return;
+
       return (
         !data.length &&
         trxOrKnex.into(lockTableWithSchema).insert({ is_locked: 0 })

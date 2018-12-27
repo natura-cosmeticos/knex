@@ -3,6 +3,7 @@ import Promise from 'bluebird';
 import Raw from './raw';
 import Ref from './ref';
 import Runner from './runner';
+import DryRunner from './dryrunner';
 import Formatter from './formatter';
 import Transaction from './transaction';
 
@@ -106,6 +107,9 @@ assign(Client.prototype, {
   },
 
   runner(builder) {
+    // TODO: make a real condition to switch them - maybe parameter from commander?
+    // TODO: see if any other method needs to be changed too
+    return new DryRunner(this, builder);
     return new Runner(this, builder);
   },
 

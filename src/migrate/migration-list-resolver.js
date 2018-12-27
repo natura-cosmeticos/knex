@@ -17,7 +17,7 @@ export function listCompleted(tableName, schemaName, trxOrKnex) {
         .orderBy('id')
         .select('name')
     )
-    .then((migrations) =>
+    .then((migrations = []) =>
       migrations.map((migration) => {
         return migration.name;
       })
